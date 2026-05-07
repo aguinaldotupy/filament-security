@@ -90,9 +90,10 @@ class BlockIpService
      */
     public function unblockIp(string $ip): bool
     {
+        // BlockedIp has $timestamps = false — order by blocked_at, not created_at.
         $blockedIp = BlockedIp::where('ip_address', $ip)
             ->whereNull('unblocked_at')
-            ->latest()
+            ->latest('blocked_at')
             ->first();
 
         if (! $blockedIp) {
