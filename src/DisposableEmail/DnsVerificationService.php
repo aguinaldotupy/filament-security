@@ -2,8 +2,8 @@
 
 namespace WallaceMartinss\FilamentSecurity\DisposableEmail;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class DnsVerificationService
 {
@@ -34,7 +34,7 @@ class DnsVerificationService
         $cacheTtl = config('filament-security.dns_verification.cache_ttl', 60);
 
         if ($cacheEnabled) {
-            return Cache::remember(
+            return Storage::cache()->remember(
                 "filament-security:dns-check:{$domain}",
                 $cacheTtl * 60,
                 fn () => static::performDnsCheck($domain)

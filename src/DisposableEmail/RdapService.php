@@ -3,9 +3,9 @@
 namespace WallaceMartinss\FilamentSecurity\DisposableEmail;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class RdapService
 {
@@ -55,7 +55,7 @@ class RdapService
         $cacheKey = "filament-security:rdap-age:{$domain}";
 
         if ($cacheEnabled) {
-            return Cache::remember(
+            return Storage::cache()->remember(
                 $cacheKey,
                 $cacheTtl * 60,
                 fn () => static::fetchRegistrationDate($domain)
@@ -179,7 +179,7 @@ class RdapService
         $cacheTtl = 86400; // 24 hours
 
         try {
-            static::$bootstrapCache = Cache::remember($cacheKey, $cacheTtl, function () {
+            static::$bootstrapCache = Storage::cache()->remember($cacheKey, $cacheTtl, function () {
                 $response = Http::timeout(10)
                     ->connectTimeout(5)
                     ->get('https://data.iana.org/rdap/dns.json');
@@ -206,7 +206,7 @@ class RdapService
      */
     public static function clearCache(): void
     {
-        Cache::forget('filament-security:rdap-bootstrap');
+        Storage::cache()->forget('filament-security:rdap-bootstrap');
         static::$bootstrapCache = null;
     }
 }

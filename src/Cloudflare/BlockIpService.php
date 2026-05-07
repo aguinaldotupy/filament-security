@@ -2,8 +2,8 @@
 
 namespace WallaceMartinss\FilamentSecurity\Cloudflare;
 
-use Illuminate\Support\Facades\RateLimiter;
 use WallaceMartinss\FilamentSecurity\Models\BlockedIp;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class BlockIpService
 {
@@ -31,7 +31,7 @@ class BlockIpService
         $decayMinutes = config('filament-security.cloudflare.decay_minutes', 30);
         $key = "filament-security:attempts:{$ip}";
 
-        $executed = RateLimiter::attempt(
+        $executed = Storage::rateLimiter()->attempt(
             $key,
             $maxAttempts,
             fn () => null,
@@ -70,7 +70,7 @@ class BlockIpService
         ]);
 
         // Clear the rate limiter for this IP
-        RateLimiter::clear("filament-security:attempts:{$ip}");
+        Storage::rateLimiter()->clear("filament-security:attempts:{$ip}");
 
         return true;
     }
@@ -117,6 +117,6 @@ class BlockIpService
         $maxAttempts = config('filament-security.cloudflare.max_attempts', 5);
         $key = "filament-security:attempts:{$ip}";
 
-        return RateLimiter::remaining($key, $maxAttempts);
+        return Storage::rateLimiter()->remaining($key, $maxAttempts);
     }
 }

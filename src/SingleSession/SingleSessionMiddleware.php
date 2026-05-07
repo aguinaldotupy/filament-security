@@ -4,10 +4,10 @@ namespace WallaceMartinss\FilamentSecurity\SingleSession;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 use WallaceMartinss\FilamentSecurity\EventLog\Enums\SecurityEventType;
 use WallaceMartinss\FilamentSecurity\EventLog\Models\SecurityEvent;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class SingleSessionMiddleware
 {
@@ -28,23 +28,23 @@ class SingleSessionMiddleware
 
         // After login + session regeneration: activate this session
         if (session()->pull('filament-security:activate-session')) {
-            Cache::put($cacheKey, $currentSessionId, now()->addMinutes($lifetime));
+            Storage::cache()->put($cacheKey, $currentSessionId, now()->addMinutes($lifetime));
 
             return $next($request);
         }
 
-        $activeSessionId = Cache::get($cacheKey);
+        $activeSessionId = Storage::cache()->get($cacheKey);
 
         // No tracking yet — register this session
         if ($activeSessionId === null) {
-            Cache::put($cacheKey, $currentSessionId, now()->addMinutes($lifetime));
+            Storage::cache()->put($cacheKey, $currentSessionId, now()->addMinutes($lifetime));
 
             return $next($request);
         }
 
         // This is the active session — refresh TTL and continue
         if ($activeSessionId === $currentSessionId) {
-            Cache::put($cacheKey, $currentSessionId, now()->addMinutes($lifetime));
+            Storage::cache()->put($cacheKey, $currentSessionId, now()->addMinutes($lifetime));
 
             return $next($request);
         }

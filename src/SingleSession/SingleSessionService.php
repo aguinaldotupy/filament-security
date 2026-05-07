@@ -3,11 +3,10 @@
 namespace WallaceMartinss\FilamentSecurity\SingleSession;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use WallaceMartinss\FilamentSecurity\EventLog\Enums\SecurityEventType;
 use WallaceMartinss\FilamentSecurity\EventLog\Models\SecurityEvent;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class SingleSessionService
 {
@@ -52,7 +51,7 @@ class SingleSessionService
 
         if ($driver === 'database') {
             try {
-                return DB::table(config('session.table', 'sessions'))
+                return Storage::db()->table(config('session.table', 'sessions'))
                     ->where('user_id', $userId)
                     ->where('id', '!=', $exceptSessionId)
                     ->exists();
@@ -62,7 +61,7 @@ class SingleSessionService
         }
 
         // For other drivers: check if there's a tracked session different from current
-        $previousSessionId = Cache::get(static::cacheKey($userId));
+        $previousSessionId = Storage::cache()->get(static::cacheKey($userId));
 
         return $previousSessionId !== null && $previousSessionId !== $exceptSessionId;
     }
@@ -91,7 +90,7 @@ class SingleSessionService
     protected static function destroyDatabaseSessions(int|string $userId, string $exceptSessionId): void
     {
         try {
-            DB::table(config('session.table', 'sessions'))
+            Storage::db()->table(config('session.table', 'sessions'))
                 ->where('user_id', $userId)
                 ->where('id', '!=', $exceptSessionId)
                 ->delete();
@@ -109,7 +108,7 @@ class SingleSessionService
      */
     protected static function destroyTrackedSession(int|string $userId, string $currentSessionId): void
     {
-        $previousSessionId = Cache::get(static::cacheKey($userId));
+        $previousSessionId = Storage::cache()->get(static::cacheKey($userId));
 
         if ($previousSessionId && $previousSessionId !== $currentSessionId) {
             try {
@@ -128,7 +127,7 @@ class SingleSessionService
      */
     public static function clearTracking(int|string $userId): void
     {
-        Cache::forget(static::cacheKey($userId));
+        Storage::cache()->forget(static::cacheKey($userId));
     }
 
     /**

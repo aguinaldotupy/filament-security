@@ -2,9 +2,9 @@
 
 namespace WallaceMartinss\FilamentSecurity\EventLog\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class IpInfoService
 {
@@ -40,7 +40,7 @@ class IpInfoService
 
         $cacheTtl = (int) config('filament-security.ipinfo.cache_ttl', 1440);
 
-        return Cache::remember("filament-security:ipinfo:{$ip}", $cacheTtl * 60, function () use ($ip): ?array {
+        return Storage::cache()->remember("filament-security:ipinfo:{$ip}", $cacheTtl * 60, function () use ($ip): ?array {
             return $this->fetchFromApi($ip);
         });
     }

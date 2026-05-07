@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public function getConnection(): ?string
+    {
+        return config('filament-security.connection');
+    }
+
     public function up(): void
     {
         Schema::create('security_events', function (Blueprint $table) {

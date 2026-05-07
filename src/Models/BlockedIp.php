@@ -3,9 +3,12 @@
 namespace WallaceMartinss\FilamentSecurity\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use WallaceMartinss\FilamentSecurity\Concerns\UsesConfiguredConnection;
 
 class BlockedIp extends Model
 {
+    use UsesConfiguredConnection;
+
     public $timestamps = false;
 
     protected $table = 'security_blocked_ips';

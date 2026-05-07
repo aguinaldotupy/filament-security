@@ -2,7 +2,7 @@
 
 namespace WallaceMartinss\FilamentSecurity\DisposableEmail;
 
-use Illuminate\Support\Facades\Cache;
+use WallaceMartinss\FilamentSecurity\Support\Storage;
 
 class DisposableEmailService
 {
@@ -51,7 +51,7 @@ class DisposableEmailService
         $cacheTtl = config('filament-security.disposable_email.cache_ttl', 1440);
 
         if ($cacheEnabled) {
-            static::$domains = Cache::remember(
+            static::$domains = Storage::cache()->remember(
                 'filament-security:disposable-domains',
                 $cacheTtl * 60,
                 fn () => static::loadDomains()
@@ -191,7 +191,7 @@ class DisposableEmailService
      */
     public static function clearCache(): void
     {
-        Cache::forget('filament-security:disposable-domains');
+        Storage::cache()->forget('filament-security:disposable-domains');
         static::$domains = null;
         static::$flipped = null;
     }

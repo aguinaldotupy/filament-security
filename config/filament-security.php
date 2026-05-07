@@ -4,6 +4,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Storage (Connection & Cache Store)
+    |--------------------------------------------------------------------------
+    |
+    | In multi-tenant or multi-database setups (e.g. stancl/tenancy) the default
+    | DB connection and cache store may switch per-request. To prevent the
+    | package's tables, single-session tracking and external lookups from being
+    | scoped/duplicated per tenant, you can pin them to a fixed connection and
+    | cache store here.
+    |
+    | Leave both as null to use whatever the application has as default
+    | (backwards compatible behavior).
+    |
+    */
+
+    // DB connection used by SecurityEvent, BlockedIp models and the
+    // sessions table queries used by the single-session feature.
+    'connection' => env('FILAMENT_SECURITY_CONNECTION'),
+
+    // Cache store used for single-session tracking, throttle counters and
+    // cached external lookups (RDAP, DNS, IpInfo, disposable domain list).
+    'cache_store' => env('FILAMENT_SECURITY_CACHE_STORE'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Disposable Email Blocking
     |--------------------------------------------------------------------------
     |

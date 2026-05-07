@@ -4,11 +4,13 @@ namespace WallaceMartinss\FilamentSecurity\EventLog\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use WallaceMartinss\FilamentSecurity\Concerns\UsesConfiguredConnection;
 use WallaceMartinss\FilamentSecurity\EventLog\Services\IpInfoService;
 
 class SecurityEvent extends Model
 {
     use HasUuids;
+    use UsesConfiguredConnection;
 
     protected $fillable = [
         'type',

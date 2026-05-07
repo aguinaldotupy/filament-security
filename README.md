@@ -650,6 +650,28 @@ FILAMENT_SECURITY_EVENT_LOG=false         # Enable/disable security event dashbo
 IPINFO_TOKEN=                             # IpInfo API token (optional)
 ```
 
+## Multi-tenant / multi-database setups
+
+If your app uses [stancl/tenancy](https://tenancyforlaravel.com) or any setup
+that swaps the default DB connection or cache store per-request, point the
+package at fixed storage so its tables and tracking aren't scoped or
+duplicated per tenant:
+
+```env
+FILAMENT_SECURITY_CONNECTION=central
+FILAMENT_SECURITY_CACHE_STORE=redis_central
+```
+
+This pins the following to the configured connection / store:
+
+- `security_events` and `security_blocked_ips` tables (models + migrations)
+- `sessions` table queries used by single-session enforcement
+- single-session active-session tracking (cache)
+- Cloudflare throttle counters (rate limiter)
+- Cached external lookups: RDAP, DNS/MX, IpInfo, disposable domain list
+
+Both keys default to `null`, preserving the previous (default-app) behavior.
+
 ## Testing
 
 ```bash
