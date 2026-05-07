@@ -3,13 +3,11 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use WallaceMartinss\FilamentSecurity\Concerns\MigratesOnConfiguredConnection;
 
 return new class extends Migration
 {
-    public function getConnection(): ?string
-    {
-        return config('filament-security.connection');
-    }
+    use MigratesOnConfiguredConnection;
 
     public function up(): void
     {
