@@ -2,6 +2,8 @@
 
 namespace WallaceMartinss\FilamentSecurity\Cloudflare;
 
+use WallaceMartinss\FilamentSecurity\EventLog\Enums\SecurityEventType;
+use WallaceMartinss\FilamentSecurity\EventLog\Models\SecurityEvent;
 use WallaceMartinss\FilamentSecurity\Models\BlockedIp;
 use WallaceMartinss\FilamentSecurity\Support\Storage;
 
@@ -69,6 +71,14 @@ class BlockIpService
             'blocked_at' => now(),
         ]);
 
+        SecurityEvent::record(SecurityEventType::IpBlocked->value, [
+            'ip_address' => $ip,
+            'metadata' => [
+                'reason' => $reason,
+                'cloudflare_rule_id' => $result['id'] ?? null,
+            ],
+        ]);
+
         // Clear the rate limiter for this IP
         Storage::rateLimiter()->clear("filament-security:attempts:{$ip}");
 
@@ -95,6 +105,14 @@ class BlockIpService
         }
 
         $blockedIp->update(['unblocked_at' => now()]);
+
+        SecurityEvent::record(SecurityEventType::IpUnblocked->value, [
+            'ip_address' => $ip,
+            'metadata' => [
+                'cloudflare_rule_id' => $blockedIp->cloudflare_rule_id,
+                'blocked_for_minutes' => (int) $blockedIp->blocked_at->diffInMinutes(now()),
+            ],
+        ]);
 
         return true;
     }
